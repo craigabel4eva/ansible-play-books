@@ -1,0 +1,27 @@
+---
+
+- name: deploy jupiter website
+  hosts: all
+  become: yes
+  become_user: root
+
+  tasks: 
+    - name: update ec2 instance
+      yum: 
+        name: "*"
+        state: latest
+        update_cache: yes
+
+    - name: install apache server
+      yum:
+        name: httpd
+        state: latest
+
+    - name: copy the web files from s3 bucket into the html directory
+      command: aws s3 sync s3://jupiter-ansible-file /var/www/html
+
+    - name: start apache server
+      service:
+        enabled: yes
+        name: httpd
+        state: started
